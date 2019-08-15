@@ -33,6 +33,8 @@ def train_data(feature, label, label_num, maxCycle, alpha):
         while i < maxCycle:
             i += 1
             err = np.exp(feature * w)
+            if i % 500 == 0:
+                tools.printInfo(1, '训练次数:{0},损失函数值:{1}'.format(str(i),str(cost(err, label))))
             rowSum = -err.sum(axis=1)
             rowSum = rowSum.repeat(label_num, axis=1)
             err = err / rowSum
@@ -54,6 +56,20 @@ def save_model(w):
         for i in w:
             i = [str(j) for j in i]
             tools.writeFile(1, 'w_info.txt', '\t'.join(i))
+    except Exception as msg:
+        tools.printInfo(2, msg)
+        sys.exit()
+
+def cost(err, label):
+    try:
+        m = np.shape(err)[0]
+        sum_cost = 0.0
+        for i in range(m):
+            if err[i, label[i, 0]] / np.sum(err[i,:]) > 0:
+                sum_cost -= np.log(err[i, label[i, 0]] / np.sum(err[i,:]))
+            else:
+                sum_cost -= 0
+        return sum_cost / m
     except Exception as msg:
         tools.printInfo(2, msg)
         sys.exit()
